@@ -1,45 +1,52 @@
-
 import streamlit as st
 
 st.set_page_config(page_title="Calculadora Reclame AQUI", layout="centered")
-
 st.title("Calculadora de Avaliação - Reclame AQUI")
 
 with st.form("formulario"):
-    total_reclamacoes = st.number_input("Total de reclamações", min_value=0, step=1)
+    total_reclamacoes = st.number_input("Total de reclamações", min_value=1, step=1)
     total_respostas = st.number_input("Total de respostas", min_value=0, step=1)
     media_notas = st.number_input("Média das notas", min_value=0.0, max_value=10.0, step=0.01)
     indice_solucao = st.number_input("Índice de solução (%)", min_value=0.0, max_value=100.0, step=0.01)
     indice_novos_negocios = st.number_input("Índice de novos negócios (%)", min_value=0.0, max_value=100.0, step=0.01)
-    total_avaliacoes = st.number_input("Total de avaliações", min_value=0, step=1)
+    total_avaliacoes = st.number_input("Total de avaliações", min_value=1, step=1)
 
     submitted = st.form_submit_button("Calcular Avaliação")
 
+def calcular_ar(respostas, reclamacoes, notas, solucao, novos_negocios):
+    ir = (respostas / reclamacoes) * 100 if reclamacoes > 0 else 0
+    ar = ((ir * 2) + (notas * 10 * 3) + (solucao * 3) + (novos_negocios * 2)) / 100
+    return round(ar, 2), round(ir, 2)
+
+def estimar_para_ra1000_site(ar_atual):
+    delta_ar = 8.5 - ar_atual
+    return int((2728 / 0.1) * delta_ar)
+
+def estimar_para_bom_site(ar_atual):
+    delta_ar = ar_atual - 7.0
+    return int((533 / 1.4) * delta_ar)
+
 if submitted:
-    if total_reclamacoes == 0 or total_avaliacoes == 0:
-        st.warning("Preencha todos os campos para calcular a avaliação.")
+    AR, indice_resposta = calcular_ar(total_respostas, total_reclamacoes, media_notas, indice_solucao, indice_novos_negocios)
+
+    if AR >= 8:
+        reputacao = "ÓTIMO"
+    elif AR >= 7:
+        reputacao = "BOM"
+    elif AR >= 6:
+        reputacao = "REGULAR"
+    elif AR >= 5:
+        reputacao = "RUIM"
     else:
-        indice_resposta = (total_respostas / total_reclamacoes) * 100 if total_reclamacoes > 0 else 0
+        reputacao = "NÃO RECOMENDADA"
 
-        AR = ((indice_resposta * 2) + (media_notas * 10 * 3) + (indice_solucao * 3) + (indice_novos_negocios * 2)) / 100
-        AR = round(AR, 2)
+    st.markdown(f"### Sua reputação é **{reputacao}** e o AR é **{AR}**.")
 
-        if AR >= 8:
-            reputacao = "ÓTIMO"
-        elif AR >= 7:
-            reputacao = "BOM"
-        elif AR >= 6:
-            reputacao = "REGULAR"
-        elif AR >= 5:
-            reputacao = "RUIM"
-        else:
-            reputacao = "NÃO RECOMENDADA"
+    soma_notas = media_notas * total_avaliacoes
+    faltam_positivas = estimar_para_ra1000_site(AR)
+    faltam_negativas = estimar_para_bom_site(AR)
 
-        st.markdown(f"### Sua confirmação é: **{reputacao}** com AR de **{AR}**")
+    faltam_respostas = max(0, int((0.9 * total_reclamacoes) - total_respostas))
 
-        faltam_para_RA1000 = max(0, int(((1000 * 0.8) - (total_avaliacoes * media_notas)) / (10 - media_notas))) if media_notas < 10 else 0
-        cair_para_bom = int(((AR - 7) * 100 - (indice_resposta * 2 + media_notas * 10 * 3 + indice_solucao * 3 + indice_novos_negocios * 2)) / (0 - 10 * 3)) if AR > 7 else 0
-
-        st.info(f"Faltam {faltam_para_RA1000} avaliações com nota 10 para alcançar o RA1000.")
-        if AR > 7:
-            st.info(f"Se receber {cair_para_bom} avaliações com nota 0, cairá para BOM.")
+    st.info(f"Para atingir a reputação **RA1000** você precisa de mais **{faltam_positivas} avaliações positivas** e mais **{faltam_respostas} novas respostas públicas**.")
+    st.warning(f"Por outro lado, se você obtiver mais **{faltam_negativas} avaliações negativas**, descerá para o selo **BOM**.")
