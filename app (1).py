@@ -4,12 +4,12 @@ st.set_page_config(page_title="Calculadora Reclame AQUI", layout="centered")
 st.title("Calculadora de Avaliação - Reclame AQUI")
 
 with st.form("formulario"):
-    total_reclamacoes = st.number_input("Total de reclamações", min_value=1, step=1, format="%d")
-    total_respostas = st.number_input("Total de respostas", min_value=0, step=1, format="%d")
-    media_notas = st.number_input("Média das notas", min_value=0.0, max_value=10.0, step=0.01, format="%.2f")
-    indice_solucao = st.number_input("Índice de solução (%)", min_value=0.0, max_value=100.0, step=0.01, format="%.2f")
-    indice_novos_negocios = st.number_input("Índice de novos negócios (%)", min_value=0.0, max_value=100.0, step=0.01, format="%.2f")
-    total_avaliacoes = st.number_input("Total de avaliações", min_value=1, step=1, format="%d")
+    total_reclamacoes = st.number_input("Total de reclamações", min_value=1, step=1)
+    total_respostas = st.number_input("Total de respostas", min_value=0, step=1)
+    media_notas = st.number_input("Média das notas", min_value=0.0, max_value=10.0, step=0.01)
+    indice_solucao = st.number_input("Índice de solução (%)", min_value=0.0, max_value=100.0, step=0.01)
+    indice_novos_negocios = st.number_input("Índice de novos negócios (%)", min_value=0.0, max_value=100.0, step=0.01)
+    total_avaliacoes = st.number_input("Total de avaliações", min_value=1, step=1)
 
     submitted = st.form_submit_button("Calcular Avaliação")
 
