@@ -3,13 +3,21 @@ import streamlit as st
 st.set_page_config(page_title="Calculadora Reclame AQUI", layout="centered")
 st.title("Calculadora de Avaliação - Reclame AQUI")
 
+def to_float(text):
+    try:
+        return float(text.replace(',', '.'))
+    except:
+        return 0.0
+
 with st.form("formulario"):
-    total_reclamacoes = st.number_input("Total de reclamações", min_value=0)
-    total_respostas = st.number_input("Total de respostas", min_value=0)
-    media_notas = st.number_input("Média das notas", min_value=0.0, max_value=10.0)
-    indice_solucao = st.number_input("Índice de solução (%)", min_value=0.0, max_value=100.0)
-    indice_novos_negocios = st.number_input("Índice de novos negócios (%)", min_value=0.0, max_value=100.0)
-    total_avaliacoes = st.number_input("Total de avaliações", min_value=0)
+    total_reclamacoes = st.number_input("Total de reclamações", min_value=0, step=1)
+    total_respostas = st.number_input("Total de respostas", min_value=0, step=1)
+
+    media_notas_txt = st.text_input("Média das notas", placeholder="Ex: 7,38")
+    indice_solucao_txt = st.text_input("Índice de solução (%)", placeholder="Ex: 86,1")
+    indice_novos_negocios_txt = st.text_input("Índice de novos negócios (%)", placeholder="Ex: 80,5")
+
+    total_avaliacoes = st.number_input("Total de avaliações", min_value=0, step=1)
 
     submitted = st.form_submit_button("Calcular Avaliação")
 
@@ -27,6 +35,10 @@ def estimar_para_bom_site(ar_atual):
     return int((533 / 1.4) * delta_ar)
 
 if submitted:
+    media_notas = to_float(media_notas_txt)
+    indice_solucao = to_float(indice_solucao_txt)
+    indice_novos_negocios = to_float(indice_novos_negocios_txt)
+
     if total_reclamacoes == 0 or total_avaliacoes == 0:
         st.warning("Por favor, preencha todos os campos corretamente antes de calcular.")
     else:
